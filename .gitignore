@@ -12,3 +12,6 @@ __pycache__/
 .coverage
 
 *.log
+
+data/memory.json
+data/history.json
