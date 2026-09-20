@@ -1,12 +1,15 @@
 from app.core.config import APP_NAME, VERSION
 from app.core.router import CommandRouter
 from app.memory.memory import add_history
+from app.ai.intent import understand
 
 
 def show_help():
 
     print("""
 Commandes disponibles :
+
+    Tu peux utiliser des commandes classiques :
 
     system
         Afficher les informations détaillées du système.
@@ -52,6 +55,13 @@ Commandes disponibles :
 
     exit
         Fermer P.R.O.S.P.E.R.
+
+
+    Ou parler naturellement :
+
+    "Quelle heure est-il ?"
+    "Ouvre mon éditeur de code"
+    "Montre-moi les informations de mon PC"
 """)
 
 
@@ -168,6 +178,7 @@ def start_cli():
     print("=" * 55)
 
     print("\nTape 'help' pour voir les commandes disponibles.")
+    print("Tu peux aussi parler naturellement à P.R.O.S.P.E.R.")
 
     while True:
 
@@ -176,17 +187,7 @@ def start_cli():
         if not command:
             continue
 
-        parts = command.split(maxsplit=1)
-
-        action = parts[0].lower()
-
-        argument = ""
-
-        if len(parts) > 1:
-
-            argument = parts[1].strip()
-
-        if action in ["exit", "quit", "bye"]:
+        if command.lower() in ["exit", "quit", "bye"]:
 
             print(
                 "P.R.O.S.P.E.R. > "
@@ -195,9 +196,36 @@ def start_cli():
 
             break
 
-        if action == "help":
+        if command.lower() == "help":
 
             show_help()
+            continue
+
+        add_history(command)
+
+        print("\nP.R.O.S.P.E.R. > Analyse...")
+
+        intent = understand(command)
+
+        if not intent["success"]:
+
+            print(
+                "P.R.O.S.P.E.R. > "
+                f"{intent['error']}"
+            )
+
+            continue
+
+        action = intent["action"]
+        argument = intent["argument"]
+
+        if action == "unknown":
+
+            print(
+                "P.R.O.S.P.E.R. > "
+                "Je ne sais pas encore comment faire ça."
+            )
+
             continue
 
         if action == "delete":
@@ -221,8 +249,6 @@ def start_cli():
                 )
 
                 continue
-
-        add_history(command)
 
         result = router.execute(
             action,
