@@ -1,0 +1,6 @@
+-r requirements.txt
+PyQt6>=6.6
+google-genai
+# Optionnel — envoi d'e-mails via Gmail (OAuth 2.0) :
+# google-api-python-client
+# google-auth-oauthlib

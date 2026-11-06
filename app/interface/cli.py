@@ -2,6 +2,11 @@ from app.core.config import APP_NAME, VERSION
 from app.core.router import CommandRouter
 from app.memory.memory import add_history
 from app.ai.intent import understand
+from app.ai.response import (
+    generate_conversation,
+    generate_response
+)
+from app.commands.letters import is_letter_request, run_letter_wizard
 
 
 def show_help():
@@ -57,11 +62,14 @@ Commandes disponibles :
         Fermer P.R.O.S.P.E.R.
 
 
-    Ou parler naturellement :
+    Tu peux aussi parler naturellement :
 
     "Quelle heure est-il ?"
     "Ouvre mon éditeur de code"
     "Montre-moi les informations de mon PC"
+    "Comment tu t'appelles ?"
+    "Qui es-tu ?"
+    "Comment vas-tu ?"
 """)
 
 
@@ -116,7 +124,7 @@ def display_result(result):
 
         if not data:
 
-            print("\nP.R.O.S.P.E.R. > Aucun fichier trouvé.")
+            print("\nAucun fichier trouvé.")
 
         else:
 
@@ -138,7 +146,6 @@ def display_result(result):
         else:
 
             for key, value in data.items():
-
                 print(f"{key} : {value}")
 
     elif result_type == "history":
@@ -187,7 +194,11 @@ def start_cli():
         if not command:
             continue
 
-        if command.lower() in ["exit", "quit", "bye"]:
+        if command.lower() in [
+            "exit",
+            "quit",
+            "bye"
+        ]:
 
             print(
                 "P.R.O.S.P.E.R. > "
@@ -202,6 +213,10 @@ def start_cli():
             continue
 
         add_history(command)
+        
+        if is_letter_request(command):
+            run_letter_wizard(command)
+            continue
 
         print("\nP.R.O.S.P.E.R. > Analyse...")
 
@@ -216,17 +231,19 @@ def start_cli():
 
             continue
 
-        action = intent["action"]
-        argument = intent["argument"]
+        if intent["type"] == "conversation":
 
-        if action == "unknown":
+            response = generate_conversation(command)
 
             print(
-                "P.R.O.S.P.E.R. > "
-                "Je ne sais pas encore comment faire ça."
+                f"\nP.R.O.S.P.E.R. > "
+                f"{response}"
             )
 
             continue
+
+        action = intent["action"]
+        argument = intent["argument"]
 
         if action == "delete":
 
@@ -264,4 +281,12 @@ def start_cli():
 
             continue
 
-        display_result(result)
+        response = generate_response(
+            command,
+            result
+        )
+
+        print(
+            f"\nP.R.O.S.P.E.R. > "
+            f"{response}"
+        )

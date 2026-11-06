@@ -10,7 +10,7 @@ HISTORY_FILE = DATA_DIR / "history.json"
 
 
 APP_NAME = "P.R.O.S.P.E.R."
-VERSION = "0.2.0"
+VERSION = "0.3.1"
 
 
 DATA_DIR.mkdir(exist_ok=True)

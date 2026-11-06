@@ -1,0 +1,5 @@
+# Données locales de l'interface graphique (ne pas versionner)
+prosper.db
+settings.json
+gmail_token.json
+logs/
